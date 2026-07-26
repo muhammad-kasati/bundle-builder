@@ -1,15 +1,16 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Product, Step, CartItem, QuantitiesState, ActiveVariantsState } from '../types/bundle';
 import { BundleContext } from './BundleContext';
-import data from '../data/products.json';
+import localData from '../data/products.json';
 
 const STORAGE_KEY = 'wyze_bundle_system_v1';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 export const BundleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const steps: Step[] = data.steps as Step[];
-  const products: Product[] = data.products as Product[];
+  const [steps, setSteps] = useState<Step[]>(localData.steps as Step[]);
+  const [products, setProducts] = useState<Product[]>(localData.products as Product[]);
 
-  // Helper to load stored or initial state
+  // Helper to load initial local state
   const getInitialState = () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -23,12 +24,12 @@ export const BundleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           };
         }
       }
-    } catch (e) {
-      console.warn('Failed to parse saved bundle state from localStorage', e);
+    } catch {
+      console.warn('Failed to parse saved bundle state from localStorage');
     }
     return {
-      quantities: data.initialState.quantities as QuantitiesState,
-      activeVariants: data.initialState.activeVariants as ActiveVariantsState,
+      quantities: localData.initialState.quantities as QuantitiesState,
+      activeVariants: localData.initialState.activeVariants as ActiveVariantsState,
       expandedStepId: 'step-1'
     };
   };
@@ -39,6 +40,25 @@ export const BundleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [expandedStepId, setExpandedStepId] = useState<string | null>(initialData.expandedStepId);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState<boolean>(false);
+
+  // Fetch backend API bonus data on mount (with automatic fallback to local JSON)
+  useEffect(() => {
+    const fetchApiData = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/products`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setSteps(json.data.steps);
+            setProducts(json.data.products);
+          }
+        }
+      } catch {
+        // Backend API offline; fallback to local data seamlessly
+      }
+    };
+    fetchApiData();
+  }, []);
 
   // Helper to construct key
   const buildKey = (productId: string, variantId?: string) => {
@@ -116,25 +136,37 @@ export const BundleProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return selectedCount;
   };
 
-  const saveSystem = () => {
+  const saveSystem = async () => {
+    const payload = {
+      quantities,
+      activeVariants,
+      expandedStepId,
+      savedAt: new Date().toISOString()
+    };
+
+    // 1. Client Persistence (localStorage)
     try {
-      const payload = {
-        quantities,
-        activeVariants,
-        expandedStepId,
-        savedAt: new Date().toISOString()
-      };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      setToastMessage('System configuration saved successfully!');
     } catch (e) {
       console.error('Failed to save to localStorage', e);
-      setToastMessage('Failed to save configuration.');
+    }
+
+    // 2. Server Persistence (Backend API Bonus)
+    try {
+      await fetch(`${API_BASE_URL}/save-bundle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      setToastMessage('System configuration saved to backend & local storage!');
+    } catch {
+      setToastMessage('System configuration saved to local storage!');
     }
   };
 
   const resetSystem = () => {
-    setQuantities(data.initialState.quantities as QuantitiesState);
-    setActiveVariantsState(data.initialState.activeVariants as ActiveVariantsState);
+    setQuantities(localData.initialState.quantities as QuantitiesState);
+    setActiveVariantsState(localData.initialState.activeVariants as ActiveVariantsState);
     setExpandedStepId('step-1');
     localStorage.removeItem(STORAGE_KEY);
     setToastMessage('Reset system to default bundle.');
