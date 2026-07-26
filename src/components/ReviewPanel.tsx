@@ -31,8 +31,9 @@ export const ReviewPanel: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#EDF4FF] rounded-2xl p-5 sm:p-6 border border-blue-200/80 shadow-sm flex flex-col justify-between h-full">
-      <div>
+    <div className="bg-[#EDF4FF] rounded-2xl p-5 sm:p-6 2xl:p-8 border border-blue-200/80 shadow-sm flex flex-col 2xl:flex-row justify-between 2xl:items-start gap-6 2xl:gap-10 h-full">
+      {/* Left Column (2XL): Line Items & Cart Summary */}
+      <div className="flex-1 min-w-0">
         {/* Top Header */}
         <div className="text-[11px] font-bold tracking-widest text-[#484848] uppercase mb-1">
           REVIEW
@@ -148,20 +149,49 @@ export const ReviewPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Summary & Checkout Footer */}
-      <div className="mt-6 pt-4 border-t border-gray-300/60">
-        {/* Guarantee & Financing Bar */}
-        <div className="flex items-center justify-between gap-2 mb-4 bg-white/70 p-3 rounded-xl border border-blue-100 shadow-xs">
+      {/* Right Column (2XL): Guarantee, Pricing & Checkout */}
+      <div className="mt-6 2xl:mt-0 pt-4 2xl:pt-0 border-t 2xl:border-t-0 border-gray-300/60 2xl:w-[420px] shrink-0">
+        {/* 2XL Top Guarantee Callout (matching Image 4) */}
+        <div className="hidden 2xl:flex items-center gap-4 mb-6 bg-white/70 p-4 rounded-xl border border-blue-100 shadow-xs">
           <SatisfactionBadge className="w-14 h-14 shrink-0" />
-          <div className="text-right flex flex-col items-end">
-            <div className="bg-[#4E2FD2] text-white text-[11px] font-semibold px-2 py-0.5 rounded shadow-xs mb-1">
+          <div>
+            <h4 className="text-sm font-bold text-gray-900">30-day hassle-free returns</h4>
+            <p className="text-xs text-gray-600 leading-snug mt-0.5">
+              If you're not totally in love with the product, we will refund you 100%.
+            </p>
+          </div>
+        </div>
+
+        {/* Guarantee & Financing Bar (Non-2XL) / Price Display (2XL) */}
+        <div className="flex flex-col mb-4 bg-white/70 p-3 sm:p-4 rounded-xl border border-blue-100 shadow-xs">
+          {/* Mobile & LG display */}
+          <div className="2xl:hidden flex items-center justify-between gap-2">
+            <SatisfactionBadge className="w-14 h-14 shrink-0" />
+            <div className="text-right flex flex-col items-end">
+              <div className="bg-[#4E2FD2] text-white text-[11px] font-semibold px-2 py-0.5 rounded shadow-xs mb-1">
+                as low as ${monthlyFinancing}/mo
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-sm text-gray-500 line-through">
+                  ${subtotalOriginal.toFixed(2)}
+                </span>
+                <span className="text-2xl font-black text-[#4E2FD2] tracking-tight">
+                  ${subtotalActive.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2XL display */}
+          <div className="hidden 2xl:flex flex-col items-end w-full">
+            <div className="bg-[#4E2FD2] text-white text-[11px] font-semibold px-2.5 py-1 rounded shadow-xs mb-1.5">
               as low as ${monthlyFinancing}/mo
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-base text-gray-500 line-through font-medium">
                 ${subtotalOriginal.toFixed(2)}
               </span>
-              <span className="text-2xl font-black text-[#4E2FD2] tracking-tight">
+              <span className="text-3xl font-black text-[#4E2FD2] tracking-tight">
                 ${subtotalActive.toFixed(2)}
               </span>
             </div>

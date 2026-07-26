@@ -29,7 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <div
-      className={`relative flex flex-col sm:flex-row items-stretch p-3 sm:p-4 gap-3 sm:gap-4 rounded-xl transition-all duration-200 bg-white ${
+      className={`relative flex flex-col items-stretch p-3 sm:p-4 gap-3 rounded-xl transition-all duration-200 bg-white ${
         isSelected
           ? 'border-2 border-[#4E2FD2] shadow-sm ring-1 ring-[#4E2FD2]/20'
           : 'border border-gray-200 hover:border-gray-300 shadow-xs'
@@ -43,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       )}
 
       {/* Image Container */}
-      <div className="relative w-full sm:w-28 h-28 sm:h-32 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center p-2 border border-gray-100 overflow-hidden">
+      <div className="relative w-full h-28 sm:h-32 shrink-0 bg-gray-50 rounded-lg flex items-center justify-center p-2 border border-gray-100 overflow-hidden">
         <ProductImage name={product.image} variantId={activeVariantId} size="100%" />
       </div>
 

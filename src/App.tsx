@@ -10,8 +10,8 @@ const BundleBuilderContent: React.FC = () => {
   const { steps, products } = useBundle();
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 py-6 sm:py-10 px-4 sm:px-6 lg:px-12 flex justify-center">
-      <div className="max-w-[1240px] w-full">
+    <div className="min-h-screen bg-white text-gray-900 py-6 sm:py-8 px-4 sm:px-6 lg:px-8 xl:px-12 flex justify-center">
+      <div className="max-w-[1240px] 2xl:max-w-[1440px] w-full">
         {/* Mobile Header Title (as shown in Figma Mobile) */}
         <div className="mb-4 lg:hidden">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
@@ -19,10 +19,14 @@ const BundleBuilderContent: React.FC = () => {
           </h1>
         </div>
 
-        {/* 2-Column Layout matching Figma Desktop (Frame 1735) */}
-        <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-10">
-          {/* Left Column: Vertical 4-Step Accordion Builder (Frame 8234) */}
-          <div className="w-full lg:w-[768px] shrink-0">
+        {/* Responsive Grid Layout:
+            - Mobile (<1024px): 1 column stacked (Steps then Review)
+            - Desktop (1024px - 1439px): 2 columns (Steps on left ~65%, Review Sidebar on right ~35%)
+            - Wide Desktop (1440px+): 1 column layout (Steps on top with 5-col grid, Review Panel full-width on bottom)
+        */}
+        <div className="flex flex-col lg:flex-row 2xl:flex-col items-start gap-6 lg:gap-8 2xl:gap-8">
+          {/* Left Column / Top Section: Vertical 4-Step Accordion Builder */}
+          <div className="w-full lg:w-[62%] 2xl:w-full shrink-0">
             <div className="space-y-4">
               {steps.map((step) => {
                 const stepProducts = products.filter((p) => p.stepId === step.id);
@@ -33,8 +37,8 @@ const BundleBuilderContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Live Review Panel (Frame 1736) */}
-          <div className="w-full lg:w-[399px] shrink-0 lg:sticky lg:top-8">
+          {/* Right Column / Bottom Section: Live Review Panel */}
+          <div className="w-full lg:w-[38%] 2xl:w-full shrink-0 lg:sticky lg:top-6 2xl:static">
             <ReviewPanel />
           </div>
         </div>

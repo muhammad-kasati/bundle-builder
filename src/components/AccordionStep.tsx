@@ -75,10 +75,18 @@ export const AccordionStep: React.FC<AccordionStepProps> = ({ step, products }) 
       {/* Accordion Content */}
       {isExpanded && (
         <div className="px-4 sm:px-6 pb-6 pt-2 border-t border-blue-200/60 bg-blue-50/30">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-5 gap-3 sm:gap-4 mt-3">
+            {products.map((product, index) => {
+              const isFifthOddItem = products.length === 5 && index === 4;
+              return (
+                <div
+                  key={product.id}
+                  className={isFifthOddItem ? 'sm:col-span-2 lg:col-span-2 2xl:col-span-1 sm:w-1/2 lg:w-1/2 2xl:w-full mx-auto' : ''}
+                >
+                  <ProductCard product={product} />
+                </div>
+              );
+            })}
           </div>
 
           {/* Next Button Footer */}
