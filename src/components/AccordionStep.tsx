@@ -15,73 +15,98 @@ export const AccordionStep: React.FC<AccordionStepProps> = ({ step, products }) 
   const isExpanded = expandedStepId === step.id;
   const selectedCount = getStepSelectedCount(step.id);
 
-  // Get next step for "Next: ..." button
   const currentStepIndex = steps.findIndex((s) => s.id === step.id);
   const nextStep = currentStepIndex < steps.length - 1 ? steps[currentStepIndex + 1] : null;
 
   const handleNextStep = () => {
-    if (nextStep) {
-      setExpandedStepId(nextStep.id);
-    } else {
-      setExpandedStepId(null);
-    }
+    if (nextStep) setExpandedStepId(nextStep.id);
+    else setExpandedStepId(null);
   };
 
   const getStepIcon = (iconName: Step['iconName']) => {
+    const cls = 'w-5 h-5 text-gray-600';
     switch (iconName) {
-      case 'camera':
-        return <Camera className="w-5 h-5 text-gray-700" />;
-      case 'shield':
-        return <ShieldCheck className="w-5 h-5 text-gray-700" />;
-      case 'sensor':
-        return <Radio className="w-5 h-5 text-gray-700" />;
-      case 'protection':
-        return <Shield className="w-5 h-5 text-gray-700" />;
-      default:
-        return <Camera className="w-5 h-5 text-gray-700" />;
+      case 'camera':     return <Camera className={cls} />;
+      case 'shield':     return <ShieldCheck className={cls} />;
+      case 'sensor':     return <Radio className={cls} />;
+      case 'protection': return <Shield className={cls} />;
+      default:           return <Camera className={cls} />;
     }
   };
 
   return (
-    <div className="bg-[#EDF4FF] rounded-xl overflow-hidden mb-4 border border-blue-100 shadow-xs transition-all duration-300">
-      {/* Step Number Bar */}
-      <div className="px-4 sm:px-6 pt-3 pb-1 flex items-center justify-between text-xs font-semibold tracking-widest text-[#484848] uppercase">
-        <span>STEP {step.stepNumber} OF 4</span>
+    <div
+      className={`rounded-xl overflow-hidden transition-all duration-300 ${
+        isExpanded
+          ? 'bg-[#EDF4FF] border border-blue-200/70 shadow-sm'
+          : 'bg-transparent'
+      }`}
+    >
+      {/* ── Step label row ────────────────────────── */}
+      <div className="px-4 sm:px-6 pt-3">
+        <span className="text-[10px] font-semibold tracking-[0.15em] text-gray-400 uppercase">
+          STEP {step.stepNumber} OF 4
+        </span>
       </div>
 
-      {/* Main Accordion Header */}
+      {/* ── Divider ───────────────────────────────── */}
+      <div className={`h-px mt-2 ${isExpanded ? 'bg-blue-200/50' : 'bg-gray-200'}`} />
+
+      {/* ── Accordion header button ───────────────── */}
       <button
         type="button"
         onClick={() => toggleStep(step.id)}
-        className="w-full px-4 sm:px-6 py-3 flex items-center justify-between hover:bg-blue-100/50 transition-colors text-left border-t border-gray-900/10 focus:outline-none"
+        className="w-full px-4 sm:px-6 py-4 flex items-center justify-between hover:bg-black/[0.03] transition-colors text-left focus:outline-none"
       >
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-white/80 rounded-lg shadow-xs">{getStepIcon(step.iconName)}</div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">{step.title}</h2>
+          <div
+            className={`p-1.5 rounded-lg shrink-0 ${
+              isExpanded ? 'bg-white shadow-xs' : 'bg-gray-100'
+            }`}
+          >
+            {getStepIcon(step.iconName)}
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+            {step.title}
+          </h2>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm font-semibold text-[#4E2FD2] bg-white/90 px-2.5 py-1 rounded-full border border-purple-200 shadow-xs">
-            {selectedCount} selected
-          </span>
+        <div className="flex items-center gap-2 shrink-0">
+          {selectedCount > 0 && (
+            <span className="text-sm font-semibold text-[#4E2FD2]">
+              {selectedCount} selected
+            </span>
+          )}
           {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-[#4E2FD2]" />
+            <ChevronUp className="w-4 h-4 text-[#4E2FD2]" />
           ) : (
-            <ChevronDown className="w-5 h-5 text-gray-500" />
+            <ChevronDown className="w-4 h-4 text-gray-400" />
           )}
         </div>
       </button>
 
-      {/* Accordion Content */}
+      {/* ── Expanded content ─────────────────────── */}
       {isExpanded && (
-        <div className="px-4 sm:px-6 pb-6 pt-2 border-t border-blue-200/60 bg-blue-50/30">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 2xl:grid-cols-5 gap-3 sm:gap-4 mt-3">
+        <div className="px-4 sm:px-6 pb-6">
+          {/*
+            Grid layout:
+            - Mobile (default):  1 col, vertical cards
+            - Desktop lg-xl:     2 cols, horizontal cards
+            - Wide 2xl:          5 cols, vertical cards
+            Odd last card → center it on sm-xl, natural on 2xl
+          */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-5 gap-3">
             {products.map((product, index) => {
-              const isFifthOddItem = products.length === 5 && index === 4;
+              const isLastOdd =
+                products.length % 2 !== 0 && index === products.length - 1;
               return (
                 <div
                   key={product.id}
-                  className={isFifthOddItem ? 'sm:col-span-2 lg:col-span-2 2xl:col-span-1 sm:w-1/2 lg:w-1/2 2xl:w-full mx-auto' : ''}
+                  className={
+                    isLastOdd
+                      ? 'sm:col-span-2 2xl:col-span-1 sm:w-1/2 2xl:w-full mx-auto'
+                      : ''
+                  }
                 >
                   <ProductCard product={product} />
                 </div>
@@ -89,13 +114,19 @@ export const AccordionStep: React.FC<AccordionStepProps> = ({ step, products }) 
             })}
           </div>
 
-          {/* Next Button Footer */}
+          {/* Next step button */}
           {step.nextStepTitle && (
             <div className="mt-6 flex justify-center">
               <button
                 type="button"
                 onClick={handleNextStep}
-                className="px-6 py-2.5 bg-white border-2 border-[#4E2FD2] text-[#4E2FD2] hover:bg-[#4E2FD2] hover:text-white font-semibold text-sm rounded-lg transition-all shadow-xs active:scale-95"
+                className="
+                  px-8 py-2.5
+                  bg-white border-2 border-[#4E2FD2] text-[#4E2FD2]
+                  hover:bg-[#4E2FD2] hover:text-white
+                  font-semibold text-sm rounded-lg
+                  transition-all duration-150 shadow-xs active:scale-95
+                "
               >
                 Next: {step.nextStepTitle}
               </button>
